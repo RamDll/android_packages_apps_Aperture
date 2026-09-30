@@ -88,6 +88,22 @@ class Camera private constructor(
         FrameRate.fromRange(it.toClosedRange())
     }.toSet()
 
+    private val supportedFrameRateRanges = cameraInfo.supportedFrameRateRanges.map {
+        it.toClosedRange()
+    }
+
+    /**
+     * The AE target FPS range to record [frameRate] video with: the widest supported range that
+     * ends at it (not dropping below [MIN_VARIABLE_FRAME_RATE]), so auto exposure can lengthen the
+     * exposure in low light like the stock camera does instead of being capped at 1/[frameRate] s,
+     * or the fixed range if the camera has no such range.
+     */
+    fun getVideoFrameRateRange(frameRate: FrameRate) = supportedFrameRateRanges.filter {
+        it.endInclusive == frameRate.value
+                && it.start >= MIN_VARIABLE_FRAME_RATE
+                && it.start < frameRate.value
+    }.minByOrNull { it.start } ?: frameRate.range
+
     private val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
 
     private val supportedVideoDynamicRanges = videoCapabilities.supportedDynamicRanges.map {
@@ -277,6 +293,11 @@ class Camera private constructor(
     }.toSet()
 
     companion object {
+        /**
+         * Lowest frame rate a variable video frame rate range may drop to in low light.
+         */
+        private const val MIN_VARIABLE_FRAME_RATE = 12
+
         fun fromCameraX(
             cameraXCameraInfo: CameraInfo,
             extensionsManager: ExtensionsManager,

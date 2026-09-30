@@ -89,7 +89,7 @@ import org.lineageos.aperture.ext.scale
 import org.lineageos.aperture.ext.setColorCorrectionAberrationMode
 import org.lineageos.aperture.ext.setDistortionCorrectionMode
 import org.lineageos.aperture.ext.setEdgeMode
-import org.lineageos.aperture.ext.setFrameRate
+import org.lineageos.aperture.ext.setFrameRateRange
 import org.lineageos.aperture.ext.setHotPixelMode
 import org.lineageos.aperture.ext.setNoiseReductionMode
 import org.lineageos.aperture.ext.setPadding
@@ -1627,9 +1627,12 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
 
             // Set Camera2 CaptureRequest options
             camera2CameraControl.setCaptureRequestOptions(CaptureRequestOptions.Builder()
-                .setFrameRate(
+                .setFrameRateRange(
                     when (cameraConfiguration) {
-                        is CameraConfiguration.Video -> cameraConfiguration.videoFrameRate
+                        is CameraConfiguration.Video -> cameraConfiguration.videoFrameRate?.let {
+                            cameraConfiguration.camera.getVideoFrameRateRange(it)
+                        }
+
                         else -> null
                     }
                 )

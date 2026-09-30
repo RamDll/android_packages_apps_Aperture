@@ -36,6 +36,14 @@ fun CaptureRequestOptions.Builder.setFrameRate(
 )
 
 @androidx.camera.camera2.interop.ExperimentalCamera2Interop
+fun CaptureRequestOptions.Builder.setFrameRateRange(
+    frameRateRange: ClosedRange<Int>?
+) = setOrClearCaptureRequestOption(
+    CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+    frameRateRange?.toRange(),
+)
+
+@androidx.camera.camera2.interop.ExperimentalCamera2Interop
 fun CaptureRequestOptions.Builder.setVideoStabilizationMode(
     videoStabilizationMode: VideoStabilizationMode?
 ) = setOrClearCaptureRequestOption(
